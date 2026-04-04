@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendora/core/controller/finance_data_controller.dart';
-import 'package:spendora/core/models/finance_transaction.dart';
 import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
 import 'package:spendora/core/utils/currency_formatter.dart';
-import 'package:spendora/core/widgets/app_error_state.dart';
-import 'package:spendora/core/widgets/app_loading_state.dart';
 import 'package:spendora/features/goals/controller/goals_page_controller.dart';
 
 class GoalsPage extends ConsumerStatefulWidget {
@@ -32,19 +30,11 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
   @override
   Widget build(BuildContext context) {
     final financeState = ref.watch(financeDataControllerProvider);
+    final financeDataController = ref.watch(
+      financeDataControllerProvider.notifier,
+    );
     final pageState = ref.watch(goalsPageControllerProvider);
-
-    if (financeState.isLoading) {
-      return const SafeArea(child: AppLoadingState());
-    }
-    if (financeState.errorMessage != null) {
-      return SafeArea(
-        child: AppErrorState(
-          alertMessage: financeState.errorMessage!,
-          onRetry: () => ref.watch(financeDataControllerProvider.notifier).reloadData(),
-        ),
-      );
-    }
+    final colors = context.appColors;
 
     final goal = financeState.goal;
     if (!_seeded) {
@@ -54,26 +44,14 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
       _seeded = true;
     }
 
-    final currentMonthTransactions = financeState.transactions
-        .where(
-          (item) =>
-              item.date.year == DateTime.now().year &&
-              item.date.month == DateTime.now().month,
-        )
-        .toList();
-    final income = currentMonthTransactions
-        .where((item) => item.type == TransactionType.income)
-        .fold<double>(0, (sum, item) => sum + item.amount);
-    final expenses = currentMonthTransactions
-        .where((item) => item.type == TransactionType.expense)
-        .fold<double>(0, (sum, item) => sum + item.amount);
-    final savings = income - expenses;
-    final noSpendDays = _countNoSpendDays(currentMonthTransactions);
-    final savingsProgress = (savings / goal.savingsTarget).clamp(0, 1).toDouble();
-    final limitProgress = (expenses / goal.monthlyExpenseLimit).clamp(0, 1).toDouble();
-    final challengeProgress = goal.noSpendTargetDays == 0
-        ? 0.0
-        : (noSpendDays / goal.noSpendTargetDays).clamp(0, 1).toDouble();
+    final expenses = financeDataController.currentMonthExpense;
+    final savings = financeDataController.currentMonthSavings;
+    final noSpendDays = financeDataController.currentMonthNoSpendDays;
+    final savingsProgress = financeDataController.currentMonthSavingsProgress;
+    final limitProgress =
+        financeDataController.currentMonthExpenseLimitProgress;
+    final challengeProgress =
+        financeDataController.currentMonthNoSpendChallengeProgress;
 
     if (pageState.alertMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -91,16 +69,16 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           Text(
             'Goals and challenges',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
+              fontWeight: FontWeight.w800,
+              color: colors.textPrimary,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             'Keep your month grounded with one clear savings target and a no-spend rhythm.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textMuted,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
           ),
           const SizedBox(height: 18),
           _ProgressCard(
@@ -132,9 +110,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: AppColors.outline),
+              border: Border.all(color: colors.outline),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,14 +120,16 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 Text(
                   'Update monthly focus',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _savingsController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Savings target'),
+                  decoration: const InputDecoration(
+                    labelText: 'Savings target',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -161,14 +141,18 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 TextField(
                   controller: _noSpendController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'No-spend target days'),
+                  decoration: const InputDecoration(
+                    labelText: 'No-spend target days',
+                  ),
                 ),
                 const SizedBox(height: 18),
                 FilledButton(
                   onPressed: pageState.isSaving
                       ? null
                       : () async {
-                          await ref.read(goalsPageControllerProvider.notifier).saveGoal(
+                          await ref
+                              .read(goalsPageControllerProvider.notifier)
+                              .saveGoal(
                                 savingsTarget: _savingsController.text,
                                 monthlyLimit: _limitController.text,
                                 noSpendTargetDays: _noSpendController.text,
@@ -176,7 +160,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                         },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Text(pageState.isSaving ? 'Saving...' : 'Save goals'),
+                    child: Text(
+                      pageState.isSaving ? 'Saving...' : 'Save goals',
+                    ),
                   ),
                 ),
               ],
@@ -185,17 +171,6 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         ],
       ),
     );
-  }
-
-  int _countNoSpendDays(List<FinanceTransaction> transactions) {
-    final expenseDays = transactions
-        .where((item) => item.isExpense)
-        .map((item) => DateTime(item.date.year, item.date.month, item.date.day))
-        .toSet();
-    final now = DateTime.now();
-    return List.generate(now.day, (index) => index + 1)
-        .where((day) => !expenseDays.contains(DateTime(now.year, now.month, day)))
-        .length;
   }
 }
 
@@ -216,28 +191,30 @@ class _ProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.outline),
+        border: Border.all(color: colors.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             subtitle,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textMuted,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
           ),
           const SizedBox(height: 16),
           LinearProgressIndicator(
@@ -250,9 +227,9 @@ class _ProgressCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             progressLabel,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textMuted,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: colors.textMuted),
           ),
         ],
       ),

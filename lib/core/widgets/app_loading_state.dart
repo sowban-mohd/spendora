@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
 
 class AppLoadingState extends StatelessWidget {
   final String title;
@@ -11,6 +12,8 @@ class AppLoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -24,7 +27,7 @@ class AppLoadingState extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                 ),
           ),
         ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
 
 class MetricCard extends StatelessWidget {
   final String label;
@@ -17,12 +17,14 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.outline),
+        border: Border.all(color: colors.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +32,7 @@ class MetricCard extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                 ),
           ),
           const SizedBox(height: 10),
@@ -38,7 +40,7 @@ class MetricCard extends StatelessWidget {
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: colors.textPrimary,
                 ),
           ),
           const SizedBox(height: 8),

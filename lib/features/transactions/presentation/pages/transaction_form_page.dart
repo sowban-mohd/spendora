@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:spendora/core/models/finance_transaction.dart';
 import 'package:spendora/core/routes/app_navigator.dart';
 import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
+import 'package:spendora/core/widgets/confirmation_dialog.dart';
 import 'package:spendora/features/transactions/controller/transaction_form_page_controller.dart';
 
 class TransactionFormPage extends ConsumerStatefulWidget {
@@ -42,6 +44,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   Widget build(BuildContext context) {
     final controller = ref.watch(transactionFormPageControllerProvider.notifier);
     final state = ref.watch(transactionFormPageControllerProvider);
+    final colors = context.appColors;
 
     if (!_seeded && widget.transaction != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,7 +65,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
           Text(
             'Track the moment clearly so your patterns stay useful later.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                 ),
           ),
           const SizedBox(height: 20),
@@ -105,7 +108,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: TransactionCategory.values.map((category) {
+            children: state.selectedType.categories.map((category) {
               return ChoiceChip(
                 label: Text(category.label),
                 selected: state.selectedCategory == category,
@@ -121,7 +124,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                 context: context,
                 initialDate: state.selectedDate,
                 firstDate: DateTime.now().subtract(const Duration(days: 365 * 3)),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
+                lastDate: DateTime.now(),
               );
               if (pickedDate != null) {
                 controller.setDate(pickedDate);
@@ -175,6 +178,19 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
               onPressed: state.isSubmitting
                   ? null
                   : () async {
+                      final confirmed = await showConfirmationDialog(
+                        context,
+                        title: 'Delete transaction?',
+                        message:
+                            'This transaction will be removed permanently and cannot be recovered.',
+                        confirmLabel: 'Delete',
+                        cancelLabel: 'Keep',
+                        isDestructive: true,
+                        icon: Icons.delete_outline_rounded,
+                      );
+                      if (!confirmed) {
+                        return;
+                      }
                       await controller.deleteTransaction(widget.transaction!);
                       if (context.mounted) {
                         AppNavigator.pop(context);

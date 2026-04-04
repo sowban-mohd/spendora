@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:spendora/core/utils/capitalize_first_letter.dart';
 
 enum TransactionType {
@@ -5,6 +6,17 @@ enum TransactionType {
   expense;
 
   String get label => capitalizeFirstLetter(name);
+
+  List<TransactionCategory> get categories {
+    switch (this) {
+      case TransactionType.income:
+        return TransactionCategory.incomeCategories;
+      case TransactionType.expense:
+        return TransactionCategory.expenseCategories;
+    }
+  }
+
+  TransactionCategory get defaultCategory => categories.first;
 }
 
 enum TransactionCategory {
@@ -21,6 +33,26 @@ enum TransactionCategory {
   other;
 
   String get label => capitalizeFirstLetter(name);
+
+  static const List<TransactionCategory> incomeCategories = [
+    TransactionCategory.salary,
+    TransactionCategory.freelance,
+    TransactionCategory.other,
+  ];
+
+  static const List<TransactionCategory> expenseCategories = [
+    TransactionCategory.food,
+    TransactionCategory.transport,
+    TransactionCategory.shopping,
+    TransactionCategory.bills,
+    TransactionCategory.entertainment,
+    TransactionCategory.savings,
+    TransactionCategory.health,
+    TransactionCategory.education,
+    TransactionCategory.other,
+  ];
+
+  bool supportsType(TransactionType type) => type.categories.contains(this);
 }
 
 class FinanceTransaction {
@@ -80,5 +112,10 @@ class FinanceTransaction {
       date: date ?? this.date,
       notes: notes ?? this.notes,
     );
+  }
+
+  @override
+  String toString() {
+    return 'FinanceTransaction(id: $id, amount: $amount, type: $type, category: $category, date: $date, notes: $notes)';
   }
 }

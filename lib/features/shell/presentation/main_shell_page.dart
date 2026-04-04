@@ -3,11 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendora/core/controller/finance_data_controller.dart';
 import 'package:spendora/core/routes/app_navigator.dart';
 import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
 import 'package:spendora/core/widgets/app_error_state.dart';
 import 'package:spendora/core/widgets/app_loading_state.dart';
 import 'package:spendora/features/dashboard/presentation/pages/home_dashboard_page.dart';
 import 'package:spendora/features/goals/presentation/pages/goals_page.dart';
 import 'package:spendora/features/insights/presentation/pages/insights_page.dart';
+import 'package:spendora/features/settings/presentation/pages/settings_page.dart';
+import 'package:spendora/features/shell/constants/shell_destination.dart';
 import 'package:spendora/features/transactions/presentation/pages/transactions_page.dart';
 
 class MainShellPage extends ConsumerStatefulWidget {
@@ -18,10 +21,13 @@ class MainShellPage extends ConsumerStatefulWidget {
 }
 
 class _MainShellPageState extends ConsumerState<MainShellPage> {
-  int _currentIndex = 0;
+  ShellDestination _currentDestination = ShellDestination.home;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    
+    //Listening to alert messages related to all the data
     ref.listen(
       financeDataControllerProvider.select((state) => state.alertMessage),
       (previous, next) {
@@ -35,25 +41,14 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
       },
     );
 
-    const pages = [
-      HomeDashboardPage(),
-      TransactionsPage(),
-      GoalsPage(),
-      InsightsPage(),
-    ];
-
     final financeState = ref.watch(financeDataControllerProvider);
 
     if (financeState.isLoading) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(child: AppLoadingState()),
-      );
+      return const _ShellScaffold(child: SafeArea(child: AppLoadingState()));
     }
     if (financeState.errorMessage != null) {
-      return Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
+      return _ShellScaffold(
+        child: SafeArea(
           child: AppErrorState(
             alertMessage: financeState.errorMessage!,
             onRetry: () =>
@@ -62,11 +57,11 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
         ),
       );
     }
-
+    
+    //If user is new and no transactions are made
     if (financeState.transactions.isEmpty) {
-      return Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
+      return _ShellScaffold(
+        child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
@@ -79,7 +74,7 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
                       width: 92,
                       height: 92,
                       decoration: BoxDecoration(
-                        color: AppColors.accentSoft,
+                        color: colors.accentSoft,
                         borderRadius: BorderRadius.circular(28),
                       ),
                       child: const Icon(
@@ -95,7 +90,7 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: colors.textPrimary,
                           ),
                     ),
                     const SizedBox(height: 10),
@@ -103,7 +98,7 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
                       'Add an income or expense to unlock the dashboard, goals, and insights across Spendora.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textMuted,
+                        color: colors.textMuted,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -111,10 +106,16 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
                       onPressed: () =>
                           AppNavigator.goToTransactionForm(context),
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical:  12, horizontal: 24),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
                         backgroundColor: AppColors.accent,
                       ),
-                      child: const Text('Add transaction', style: TextStyle(color: Colors.white, fontSize: 18), ),
+                      child: const Text(
+                        'Add transaction',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
                     ),
                   ],
                 ),
@@ -125,43 +126,152 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
       );
     }
 
-    final bottomNavigationBar = NavigationBar(
-      selectedIndex: _currentIndex,
-      onDestinationSelected: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      backgroundColor: AppColors.surface,
-      indicatorColor: AppColors.accentSoft,
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home_rounded),
-          label: 'Home',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.receipt_long_outlined),
-          selectedIcon: Icon(Icons.receipt_long_rounded),
-          label: 'Transactions',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.flag_outlined),
-          selectedIcon: Icon(Icons.flag_rounded),
-          label: 'Goals',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.insights_outlined),
-          selectedIcon: Icon(Icons.insights_rounded),
-          label: 'Insights',
-        ),
-      ],
+    return _ShellScaffold(
+      drawer: _AppDrawer(
+        selectedDestination: _currentDestination,
+        onDestinationSelected: (destination) {
+         AppNavigator.pop(context);
+          setState(() {
+            _currentDestination = destination;
+          });
+        },
+      ),
+      child: _buildSelectedPage(),
     );
+  }
+  
+  Widget _buildSelectedPage() {
+    return switch (_currentDestination) {
+      ShellDestination.home => const HomeDashboardPage(),
+      ShellDestination.transactions => const TransactionsPage(),
+      ShellDestination.goals => const GoalsPage(),
+      ShellDestination.insights => const InsightsPage(),
+      ShellDestination.settings => const SettingsPage(),
+    };
+  }
+}
+
+//Drawer
+class _AppDrawer extends StatelessWidget {
+  final ShellDestination selectedDestination;
+  final ValueChanged<ShellDestination> onDestinationSelected;
+
+  const _AppDrawer({
+    required this.selectedDestination,
+    required this.onDestinationSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Drawer(
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Spendora',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Navigate your money story.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...ShellDestination.values.map((destination) {
+                final selected = destination == selectedDestination;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: ListTile(
+                    leading: Icon(
+                      selected ? destination.selectedIcon : destination.icon,
+                      color: selected ? colors.textPrimary : colors.textMuted,
+                    ),
+                    title: Text(
+                      destination.label,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    tileColor: selected ? colors.accentSoft : null,
+                    onTap: () => onDestinationSelected(destination),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Common scaffold for different states
+class _ShellScaffold extends StatelessWidget {
+  final Widget child;
+  final Widget? drawer;
+
+  const _ShellScaffold({
+    required this.child,
+    this.drawer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: IndexedStack(index: _currentIndex, children: pages),
-      bottomNavigationBar: bottomNavigationBar,
+      backgroundColor: colors.background,
+      appBar: drawer == null
+          ? null
+          : AppBar(
+              backgroundColor: colors.background,
+              elevation: 0,
+              surfaceTintColor: Colors.transparent,
+              titleSpacing: 0,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Spendora',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: colors.textPrimary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  Text(
+                    'Navigate your money story.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+      drawer: drawer,
+      body: child,
     );
   }
 }

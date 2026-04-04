@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendora/core/controller/finance_data_controller.dart';
 import 'package:spendora/core/routes/app_navigator.dart';
 import 'package:spendora/core/theme/app_colors.dart';
-import 'package:spendora/core/widgets/app_error_state.dart';
-import 'package:spendora/core/widgets/app_loading_state.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
+import 'package:spendora/core/widgets/confirmation_dialog.dart';
 import 'package:spendora/core/widgets/empty_state_card.dart';
 import 'package:spendora/features/transactions/controller/transactions_page_controller.dart';
 import 'package:spendora/features/transactions/presentation/components/transaction_tile.dart';
@@ -14,21 +14,9 @@ class TransactionsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final financeState = ref.watch(financeDataControllerProvider);
     final pageState = ref.watch(transactionsPageControllerProvider);
     final filteredTransactions = ref.watch(filteredTransactionsProvider);
-
-    if (financeState.isLoading) {
-      return const SafeArea(child: AppLoadingState());
-    }
-    if (financeState.errorMessage != null) {
-      return SafeArea(
-        child: AppErrorState(
-          alertMessage: financeState.errorMessage!,
-          onRetry: () => ref.watch(financeDataControllerProvider.notifier).reloadData(),
-        ),
-      );
-    }
+    final colors = context.appColors;
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
@@ -44,14 +32,14 @@ class TransactionsPage extends ConsumerWidget {
               'Transactions',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: colors.textPrimary,
                   ),
             ),
             const SizedBox(height: 6),
             Text(
               'Search, filter, edit, and clean up your daily money log.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textMuted,
+                    color: colors.textMuted,
                   ),
             ),
             const SizedBox(height: 18),
@@ -119,9 +107,21 @@ class TransactionsPage extends ConsumerWidget {
                           color: Colors.white,
                         ),
                       ),
+                      confirmDismiss: (_) async {
+                        return showConfirmationDialog(
+                          context,
+                          title: 'Delete transaction?',
+                          message:
+                              'This transaction will be removed permanently and cannot be recovered.',
+                          confirmLabel: 'Delete',
+                          cancelLabel: 'Keep',
+                          isDestructive: true,
+                          icon: Icons.delete_outline_rounded,
+                        );
+                      },
                       onDismissed: (_) {
                         ref
-                            .watch(financeDataControllerProvider.notifier)
+                            .read(financeDataControllerProvider.notifier)
                             .deleteTransaction(transaction.id);
                       },
                       child: TransactionTile(

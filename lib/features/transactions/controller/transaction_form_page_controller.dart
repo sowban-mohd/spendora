@@ -15,7 +15,13 @@ class TransactionFormPageController extends Notifier<TransactionFormPageState> {
   }
 
   void setType(TransactionType type) {
-    state = state.copyWith(selectedType: type);
+    final nextCategory = state.selectedCategory.supportsType(type)
+        ? state.selectedCategory
+        : type.defaultCategory;
+    state = state.copyWith(
+      selectedType: type,
+      selectedCategory: nextCategory,
+    );
   }
 
   void setCategory(TransactionCategory category) {
@@ -106,7 +112,7 @@ class TransactionFormPageState {
   factory TransactionFormPageState.initial() {
     return TransactionFormPageState(
       selectedType: TransactionType.expense,
-      selectedCategory: TransactionCategory.food,
+      selectedCategory: TransactionType.expense.defaultCategory,
       selectedDate: DateTime.now(),
       isSubmitting: false,
     );

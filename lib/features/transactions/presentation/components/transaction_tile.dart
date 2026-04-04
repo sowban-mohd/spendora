@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:spendora/core/models/finance_transaction.dart';
 import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
 import 'package:spendora/core/utils/currency_formatter.dart';
 
 class TransactionTile extends StatelessWidget {
@@ -18,15 +19,16 @@ class TransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isExpense = transaction.isExpense;
     final amountColor = isExpense ? AppColors.expense : AppColors.income;
+    final colors = context.appColors;
     return InkWell(
       borderRadius: BorderRadius.circular(24),
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.outline),
+          border: Border.all(color: colors.outline),
         ),
         child: Row(
           children: [
@@ -53,7 +55,7 @@ class TransactionTile extends StatelessWidget {
                     transaction.category.label,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: colors.textPrimary,
                         ),
                   ),
                   const SizedBox(height: 4),
@@ -64,7 +66,7 @@ class TransactionTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textMuted,
+                          color: colors.textMuted,
                         ),
                   ),
                 ],
@@ -85,7 +87,7 @@ class TransactionTile extends StatelessWidget {
                 Text(
                   DateFormat('dd MMM').format(transaction.date),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textMuted,
+                        color: colors.textMuted,
                       ),
                 ),
               ],

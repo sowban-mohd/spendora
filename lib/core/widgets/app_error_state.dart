@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendora/core/models/alert_message.dart';
-import 'package:spendora/core/theme/app_colors.dart';
+import 'package:spendora/core/theme/app_theme_colors.dart';
 
 class AppErrorState extends StatelessWidget {
   final AlertMessage alertMessage;
@@ -14,6 +14,8 @@ class AppErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -24,7 +26,7 @@ class AppErrorState extends StatelessWidget {
               alertMessage.header,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: colors.textPrimary,
                   ),
             ),
             const SizedBox(height: 8),
@@ -32,7 +34,7 @@ class AppErrorState extends StatelessWidget {
               alertMessage.message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textMuted,
+                    color: colors.textMuted,
                   ),
             ),
             const SizedBox(height: 16),
