@@ -9,13 +9,13 @@ class MonthlyGoal {
     required this.noSpendTargetDays,
   });
 
-  factory MonthlyGoal.initial() {
-    return const MonthlyGoal(
-      savingsTarget: 18000,
-      monthlyExpenseLimit: 22000,
-      noSpendTargetDays: 10,
-    );
-  }
+  // factory MonthlyGoal.initial() {
+  //   return const MonthlyGoal(
+  //     savingsTarget: 18000,
+  //     monthlyExpenseLimit: 22000,
+  //     noSpendTargetDays: 10,
+  //   );
+  // }
 
   Map<String, dynamic> toMap() {
     return {

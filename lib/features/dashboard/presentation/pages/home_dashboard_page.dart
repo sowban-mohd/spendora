@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:spendora/core/controller/currency_data_controller.dart';
 import 'package:spendora/core/controller/finance_data_controller.dart';
 import 'package:spendora/core/routes/app_navigator.dart';
 import 'package:spendora/core/theme/app_colors.dart';
 import 'package:spendora/core/theme/app_theme_colors.dart';
-import 'package:spendora/core/utils/currency_formatter.dart';
 import 'package:spendora/core/widgets/empty_state_card.dart';
 import 'package:spendora/core/widgets/metric_card.dart';
 import 'package:spendora/features/dashboard/controller/home_dashboard_controller.dart';
@@ -41,6 +41,7 @@ class HomeDashboardPage extends ConsumerWidget {
       0,
       (sum, item) => sum + item.value,
     );
+    final formatCurrency = ref.watch(currencyDataControllerProvider.notifier).formatCurrency;
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(

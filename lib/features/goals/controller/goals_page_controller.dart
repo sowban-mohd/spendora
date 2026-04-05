@@ -5,13 +5,13 @@ import 'package:spendora/core/models/monthly_goal.dart';
 
 final goalsPageControllerProvider =
     NotifierProvider.autoDispose<GoalsPageController, GoalsPageState>(
-  GoalsPageController.new,
-);
+      GoalsPageController.new,
+    );
 
 class GoalsPageController extends Notifier<GoalsPageState> {
   @override
   GoalsPageState build() {
-    return const GoalsPageState(isSaving: false);
+    return const GoalsPageState();
   }
 
   Future<bool> saveGoal({
@@ -38,14 +38,14 @@ class GoalsPageController extends Notifier<GoalsPageState> {
       return false;
     }
 
-    state = state.copyWith(isSaving: true, alertMessage: null);
+    state = state.copyWith(alertMessage: null);
     final goal = MonthlyGoal(
       savingsTarget: parsedSavingsTarget,
       monthlyExpenseLimit: parsedMonthlyLimit,
       noSpendTargetDays: parsedNoSpendDays,
     );
     await ref.watch(financeDataControllerProvider.notifier).updateGoal(goal);
-    state = state.copyWith(isSaving: false, alertMessage: null);
+    state = state.copyWith(alertMessage: null);
     return true;
   }
 
@@ -55,18 +55,11 @@ class GoalsPageController extends Notifier<GoalsPageState> {
 }
 
 class GoalsPageState {
-  final bool isSaving;
   final AlertMessage? alertMessage;
 
-  const GoalsPageState({required this.isSaving, this.alertMessage});
+  const GoalsPageState({this.alertMessage});
 
-  GoalsPageState copyWith({
-    bool? isSaving,
-    AlertMessage? alertMessage,
-  }) {
-    return GoalsPageState(
-      isSaving: isSaving ?? this.isSaving,
-      alertMessage: alertMessage,
-    );
+  GoalsPageState copyWith({AlertMessage? alertMessage}) {
+    return GoalsPageState(alertMessage: alertMessage);
   }
 }

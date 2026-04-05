@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendora/core/controller/currency_data_controller.dart';
 import 'package:spendora/core/controller/finance_data_controller.dart';
 import 'package:spendora/core/theme/app_colors.dart';
 import 'package:spendora/core/theme/app_theme_colors.dart';
-import 'package:spendora/core/utils/currency_formatter.dart';
 import 'package:spendora/features/goals/controller/goals_page_controller.dart';
 
 class GoalsPage extends ConsumerStatefulWidget {
@@ -36,7 +36,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     final pageState = ref.watch(goalsPageControllerProvider);
     final colors = context.appColors;
 
-    final goal = financeState.goal;
+    final goal = financeState.goal!;
     if (!_seeded) {
       _savingsController.text = goal.savingsTarget.toStringAsFixed(0);
       _limitController.text = goal.monthlyExpenseLimit.toStringAsFixed(0);
@@ -52,6 +52,9 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         financeDataController.currentMonthExpenseLimitProgress;
     final challengeProgress =
         financeDataController.currentMonthNoSpendChallengeProgress;
+    final formatCurrency = ref
+        .watch(currencyDataControllerProvider.notifier)
+        .formatCurrency;
 
     if (pageState.alertMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -147,22 +150,18 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                 ),
                 const SizedBox(height: 18),
                 FilledButton(
-                  onPressed: pageState.isSaving
-                      ? null
-                      : () async {
-                          await ref
-                              .read(goalsPageControllerProvider.notifier)
-                              .saveGoal(
-                                savingsTarget: _savingsController.text,
-                                monthlyLimit: _limitController.text,
-                                noSpendTargetDays: _noSpendController.text,
-                              );
-                        },
+                  onPressed: () async {
+                    await ref
+                        .watch(goalsPageControllerProvider.notifier)
+                        .saveGoal(
+                          savingsTarget: _savingsController.text,
+                          monthlyLimit: _limitController.text,
+                          noSpendTargetDays: _noSpendController.text,
+                        );
+                  },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Text(
-                      pageState.isSaving ? 'Saving...' : 'Save goals',
-                    ),
+                    child: Text('Save goals'),
                   ),
                 ),
               ],

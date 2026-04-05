@@ -185,6 +185,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+  currency_picker:
+    dependency: "direct main"
+    description:
+      name: currency_picker
+      sha256: c9ab5c0da8ae4dcc6421064dccde072b44f5b44914691b967ea4cf45a266a658
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.21"
+  damn_nullable:
+    dependency: "direct main"
+    description:
+      name: damn_nullable
+      sha256: "0c925bc7201ceefbf4ca8e79c69b77e82aff62439d62d1de6e2ca93e2f08f75b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   dart_style:
     dependency: transitive
     description:
@@ -193,6 +209,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.3"
+  dio:
+    dependency: "direct main"
+    description:
+      name: dio
+      sha256: aff32c08f92787a557dd5c0145ac91536481831a01b4648136373cddb0e64f8c
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.9.2"
+  dio_web_adapter:
+    dependency: transitive
+    description:
+      name: dio_web_adapter
+      sha256: "2f9e64323a7c3c7ef69567d5c800424a11f8337b8b228bad02524c9fb3c1f340"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.2"
   drift:
     dependency: "direct main"
     description:
@@ -254,6 +286,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_dotenv:
+    dependency: "direct main"
+    description:
+      name: flutter_dotenv
+      sha256: d4130c4a43e0b13fefc593bc3961f2cb46e30cb79e253d4a526b1b5d24ae1ce4
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:

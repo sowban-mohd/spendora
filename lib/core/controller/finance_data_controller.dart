@@ -71,25 +71,25 @@ class FinanceDataController extends Notifier<FinanceDataState> {
 
   double get balance => income - expense;
 
-  double get savingsProgress => state.goal.savingsTarget == 0
+  double get savingsProgress => state.goal!.savingsTarget == 0
       ? 0.0
-      : (balance / state.goal.savingsTarget).clamp(0, 1).toDouble();
+      : (balance / state.goal!.savingsTarget).clamp(0, 1).toDouble();
 
-  double get currentMonthSavingsProgress => state.goal.savingsTarget == 0
+  double get currentMonthSavingsProgress => state.goal!.savingsTarget == 0
       ? 0.0
-      : (currentMonthSavings / state.goal.savingsTarget).clamp(0, 1).toDouble();
+      : (currentMonthSavings / state.goal!.savingsTarget).clamp(0, 1).toDouble();
 
   double get currentMonthExpenseLimitProgress =>
-      state.goal.monthlyExpenseLimit == 0
+      state.goal!.monthlyExpenseLimit == 0
       ? 0.0
-      : (currentMonthExpense / state.goal.monthlyExpenseLimit)
+      : (currentMonthExpense / state.goal!.monthlyExpenseLimit)
             .clamp(0, 1)
             .toDouble();
 
   double get currentMonthNoSpendChallengeProgress =>
-      state.goal.noSpendTargetDays == 0
+      state.goal!.noSpendTargetDays == 0
       ? 0.0
-      : (currentMonthNoSpendDays / state.goal.noSpendTargetDays)
+      : (currentMonthNoSpendDays / state.goal!.noSpendTargetDays)
             .clamp(0, 1)
             .toDouble();
 

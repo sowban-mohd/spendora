@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:spendora/core/controller/currency_data_controller.dart';
 import 'package:spendora/core/models/finance_transaction.dart';
 import 'package:spendora/core/theme/app_colors.dart';
 import 'package:spendora/core/theme/app_theme_colors.dart';
-import 'package:spendora/core/utils/currency_formatter.dart';
 
-class TransactionTile extends StatelessWidget {
+class TransactionTile extends ConsumerWidget {
   final FinanceTransaction transaction;
   final VoidCallback onTap;
 
@@ -16,7 +17,7 @@ class TransactionTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isExpense = transaction.isExpense;
     final amountColor = isExpense ? AppColors.expense : AppColors.income;
     final colors = context.appColors;
@@ -54,9 +55,9 @@ class TransactionTile extends StatelessWidget {
                   Text(
                     transaction.category.label,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: colors.textPrimary,
-                        ),
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -65,9 +66,9 @@ class TransactionTile extends StatelessWidget {
                         : transaction.notes,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.textMuted,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: colors.textMuted),
                   ),
                 ],
               ),
@@ -77,18 +78,18 @@ class TransactionTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '${isExpense ? '-' : '+'}${formatCurrency(transaction.amount)}',
+                  '${isExpense ? '-' : '+'}${ref.watch(currencyDataControllerProvider.notifier).formatCurrency(transaction.amount)}',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: amountColor,
-                      ),
+                    fontWeight: FontWeight.w700,
+                    color: amountColor,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('dd MMM').format(transaction.date),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.textMuted,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.textMuted),
                 ),
               ],
             ),

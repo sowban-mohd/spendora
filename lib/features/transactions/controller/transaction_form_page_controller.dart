@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:spendora/core/controller/currency_data_controller.dart';
 import 'package:spendora/core/controller/finance_data_controller.dart';
 import 'package:spendora/core/models/alert_message.dart';
 import 'package:spendora/core/models/finance_transaction.dart';
@@ -11,7 +13,7 @@ final transactionFormPageControllerProvider = NotifierProvider.autoDispose<
 class TransactionFormPageController extends Notifier<TransactionFormPageState> {
   @override
   TransactionFormPageState build() {
-    return TransactionFormPageState.initial();
+    return TransactionFormPageState.initial(ref);
   }
 
   void setType(TransactionType type) {
@@ -36,11 +38,16 @@ class TransactionFormPageController extends Notifier<TransactionFormPageState> {
     state = state.copyWith(amountError: error);
   }
 
+  void selectCurrency(String currency){
+    state = state.copyWith(selectedCurrency: currency);
+  }
+
   Future<bool> saveTransaction({
     required FinanceTransaction? existingTransaction,
     required String amount,
     required String notes,
   }) async {
+    print(amount);
     final parsedAmount = double.tryParse(amount.trim());
     if (parsedAmount == null || parsedAmount <= 0) {
       state = state.copyWith(amountError: 'Enter a valid amount');
@@ -95,6 +102,7 @@ class TransactionFormPageController extends Notifier<TransactionFormPageState> {
 class TransactionFormPageState {
   final TransactionType selectedType;
   final TransactionCategory selectedCategory;
+  final String selectedCurrency;
   final DateTime selectedDate;
   final bool isSubmitting;
   final String? amountError;
@@ -103,16 +111,18 @@ class TransactionFormPageState {
   const TransactionFormPageState({
     required this.selectedType,
     required this.selectedCategory,
+    required this.selectedCurrency,
     required this.selectedDate,
     required this.isSubmitting,
     this.amountError,
     this.alertMessage,
   });
 
-  factory TransactionFormPageState.initial() {
+  factory TransactionFormPageState.initial(Ref ref) {
     return TransactionFormPageState(
       selectedType: TransactionType.expense,
       selectedCategory: TransactionType.expense.defaultCategory,
+      selectedCurrency: ref.watch(currencyDataControllerProvider).currency,
       selectedDate: DateTime.now(),
       isSubmitting: false,
     );
@@ -121,6 +131,7 @@ class TransactionFormPageState {
   TransactionFormPageState copyWith({
     TransactionType? selectedType,
     TransactionCategory? selectedCategory,
+    String? selectedCurrency,
     DateTime? selectedDate,
     bool? isSubmitting,
     String? amountError,
@@ -129,10 +140,11 @@ class TransactionFormPageState {
     return TransactionFormPageState(
       selectedType: selectedType ?? this.selectedType,
       selectedCategory: selectedCategory ?? this.selectedCategory,
+      selectedCurrency: selectedCurrency ?? this.selectedCurrency,
       selectedDate: selectedDate ?? this.selectedDate,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      amountError: amountError,
-      alertMessage: alertMessage,
+      amountError: amountError ?? this.amountError,
+      alertMessage: alertMessage ?? this.alertMessage,
     );
   }
 }

@@ -5,14 +5,14 @@ import 'package:spendora/core/models/monthly_goal.dart';
 class FinanceDataState {
   final bool isLoading;
   final List<FinanceTransaction> transactions;
-  final MonthlyGoal goal;
+  final MonthlyGoal? goal;
   final AlertMessage? errorMessage;
   final AlertMessage? alertMessage;
 
   const FinanceDataState({
     required this.isLoading,
     required this.transactions,
-    required this.goal,
+     this.goal,
     this.errorMessage,
     this.alertMessage,
   });
@@ -21,7 +21,6 @@ class FinanceDataState {
     return FinanceDataState(
       isLoading: true,
       transactions: const [],
-      goal: MonthlyGoal.initial(),
     );
   }
 

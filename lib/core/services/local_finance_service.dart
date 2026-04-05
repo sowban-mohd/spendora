@@ -65,12 +65,12 @@ class LocalFinanceService {
     }
   }
 
-  Future<goal_model.MonthlyGoal> loadGoal() async {
+  Future<goal_model.MonthlyGoal?> loadGoal() async {
     final row = await (_database.select(
       _database.monthlyGoals,
     )..where((table) => table.id.equals(1))).getSingleOrNull();
     if (row == null) {
-      return goal_model.MonthlyGoal.initial();
+      return null;
     }
     return goal_model.MonthlyGoal(
       savingsTarget: row.savingsTarget,
@@ -100,140 +100,140 @@ class LocalFinanceService {
     }
   }
 
-  Future<void> _seedDemoData() async {
-    final transactionCount = await _database.managers.transactions.count();
-    final goalCount = await _database.managers.monthlyGoals.count();
+  // Future<void> _seedDemoData() async {
+  //   final transactionCount = await _database.managers.transactions.count();
+  //   final goalCount = await _database.managers.monthlyGoals.count();
 
-    //Only adding data if database is empty
-    if (transactionCount > 0 || goalCount > 0) {
-      return;
-    }
+  //   //Only adding data if database is empty
+  //   if (transactionCount > 0 || goalCount > 0) {
+  //     return;
+  //   }
 
-    final now = DateTime.now();
-    final seedTransactions = <FinanceTransaction>[
-      FinanceTransaction(
-        id: 'txn-1',
-        amount: 42000,
-        type: TransactionType.income,
-        category: TransactionCategory.salary,
-        date: DateTime(now.year, now.month, 1),
-        notes: 'Monthly salary',
-      ),
-      FinanceTransaction(
-        id: 'txn-2',
-        amount: 2500,
-        type: TransactionType.income,
-        category: TransactionCategory.freelance,
-        date: now.subtract(const Duration(days: 2)),
-        notes: 'Design side project',
-      ),
-      FinanceTransaction(
-        id: 'txn-3',
-        amount: 420,
-        type: TransactionType.expense,
-        category: TransactionCategory.food,
-        date: now.subtract(const Duration(days: 1)),
-        notes: 'Lunch and coffee',
-      ),
-      FinanceTransaction(
-        id: 'txn-4',
-        amount: 1200,
-        type: TransactionType.expense,
-        category: TransactionCategory.transport,
-        date: now.subtract(const Duration(days: 3)),
-        notes: 'Cab rides',
-      ),
-      FinanceTransaction(
-        id: 'txn-5',
-        amount: 3800,
-        type: TransactionType.expense,
-        category: TransactionCategory.shopping,
-        date: now.subtract(const Duration(days: 5)),
-        notes: 'Shoes and essentials',
-      ),
-      FinanceTransaction(
-        id: 'txn-6',
-        amount: 1600,
-        type: TransactionType.expense,
-        category: TransactionCategory.bills,
-        date: now.subtract(const Duration(days: 7)),
-        notes: 'Mobile and internet',
-      ),
-      FinanceTransaction(
-        id: 'txn-7',
-        amount: 5000,
-        type: TransactionType.income,
-        category: TransactionCategory.freelance,
-        date: now.subtract(const Duration(days: 9)),
-        notes: 'Workshop payment',
-      ),
-      FinanceTransaction(
-        id: 'txn-8',
-        amount: 950,
-        type: TransactionType.expense,
-        category: TransactionCategory.entertainment,
-        date: now.subtract(const Duration(days: 11)),
-        notes: 'Movie night',
-      ),
-      FinanceTransaction(
-        id: 'txn-9',
-        amount: 2200,
-        type: TransactionType.expense,
-        category: TransactionCategory.health,
-        date: now.subtract(const Duration(days: 14)),
-        notes: 'Pharmacy and checkup',
-      ),
-      FinanceTransaction(
-        id: 'txn-10',
-        amount: 3200,
-        type: TransactionType.expense,
-        category: TransactionCategory.savings,
-        date: now.subtract(const Duration(days: 16)),
-        notes: 'Moved to rainy day fund',
-      ),
-      FinanceTransaction(
-        id: 'txn-11',
-        amount: 750,
-        type: TransactionType.expense,
-        category: TransactionCategory.food,
-        date: now.subtract(const Duration(days: 19)),
-        notes: 'Dinner with friends',
-      ),
-      FinanceTransaction(
-        id: 'txn-12',
-        amount: 1800,
-        type: TransactionType.expense,
-        category: TransactionCategory.education,
-        date: now.subtract(const Duration(days: 24)),
-        notes: 'Course renewal',
-      ),
-    ];
+  //   final now = DateTime.now();
+  //   final seedTransactions = <FinanceTransaction>[
+  //     FinanceTransaction(
+  //       id: 'txn-1',
+  //       amount: 42000,
+  //       type: TransactionType.income,
+  //       category: TransactionCategory.salary,
+  //       date: DateTime(now.year, now.month, 1),
+  //       notes: 'Monthly salary',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-2',
+  //       amount: 2500,
+  //       type: TransactionType.income,
+  //       category: TransactionCategory.freelance,
+  //       date: now.subtract(const Duration(days: 2)),
+  //       notes: 'Design side project',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-3',
+  //       amount: 420,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.food,
+  //       date: now.subtract(const Duration(days: 1)),
+  //       notes: 'Lunch and coffee',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-4',
+  //       amount: 1200,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.transport,
+  //       date: now.subtract(const Duration(days: 3)),
+  //       notes: 'Cab rides',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-5',
+  //       amount: 3800,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.shopping,
+  //       date: now.subtract(const Duration(days: 5)),
+  //       notes: 'Shoes and essentials',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-6',
+  //       amount: 1600,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.bills,
+  //       date: now.subtract(const Duration(days: 7)),
+  //       notes: 'Mobile and internet',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-7',
+  //       amount: 5000,
+  //       type: TransactionType.income,
+  //       category: TransactionCategory.freelance,
+  //       date: now.subtract(const Duration(days: 9)),
+  //       notes: 'Workshop payment',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-8',
+  //       amount: 950,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.entertainment,
+  //       date: now.subtract(const Duration(days: 11)),
+  //       notes: 'Movie night',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-9',
+  //       amount: 2200,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.health,
+  //       date: now.subtract(const Duration(days: 14)),
+  //       notes: 'Pharmacy and checkup',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-10',
+  //       amount: 3200,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.savings,
+  //       date: now.subtract(const Duration(days: 16)),
+  //       notes: 'Moved to rainy day fund',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-11',
+  //       amount: 750,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.food,
+  //       date: now.subtract(const Duration(days: 19)),
+  //       notes: 'Dinner with friends',
+  //     ),
+  //     FinanceTransaction(
+  //       id: 'txn-12',
+  //       amount: 1800,
+  //       type: TransactionType.expense,
+  //       category: TransactionCategory.education,
+  //       date: now.subtract(const Duration(days: 24)),
+  //       notes: 'Course renewal',
+  //     ),
+  //   ];
 
-    await _database.transaction(() async {
-      await _database.batch((batch) {
-        batch.insertAll(
-          _database.transactions,
-          seedTransactions.map(_mapTransactionCompanion).toList(),
-        );
-      });
-      await _database
-          .into(_database.monthlyGoals)
-          .insert(
-            MonthlyGoalsCompanion(
-              id: const Value(1),
-              savingsTarget: Value(
-                goal_model.MonthlyGoal.initial().savingsTarget,
-              ),
-              monthlyExpenseLimit: Value(
-                goal_model.MonthlyGoal.initial().monthlyExpenseLimit,
-              ),
-              noSpendTargetDays: Value(
-                goal_model.MonthlyGoal.initial().noSpendTargetDays,
-              ),
-            ),
-          );
-    });
-  }
+  //   await _database.transaction(() async {
+  //     await _database.batch((batch) {
+  //       batch.insertAll(
+  //         _database.transactions,
+  //         seedTransactions.map(_mapTransactionCompanion).toList(),
+  //       );
+  //     });
+  //     await _database
+  //         .into(_database.monthlyGoals)
+  //         .insert(
+  //           MonthlyGoalsCompanion(
+  //             id: const Value(1),
+  //             savingsTarget: Value(
+  //               goal_model.MonthlyGoal.initial().savingsTarget,
+  //             ),
+  //             monthlyExpenseLimit: Value(
+  //               goal_model.MonthlyGoal.initial().monthlyExpenseLimit,
+  //             ),
+  //             noSpendTargetDays: Value(
+  //               goal_model.MonthlyGoal.initial().noSpendTargetDays,
+  //             ),
+  //           ),
+  //         );
+  //   });
+  // }
 
   //Data mapping helpers
 
