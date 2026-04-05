@@ -87,9 +87,9 @@ class HomeDashboardPage extends ConsumerWidget {
                       balance >= 0
                           ? 'You are saving more than you spend this month.'
                           : 'Spending is ahead of income this month.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white70,
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                     ),
                     const SizedBox(height: 18),
                     LinearProgressIndicator(
