@@ -75,9 +75,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     final currentCurrency = ref.watch(
       currencyDataControllerProvider.select((s) => s.currency),
     );
-    final isExchangeRatesNotLoaded = ref.watch(
-      currencyDataControllerProvider.select((s) => s.exchangeRates == null),
-    );
+
     final exchangeRatesLoading = ref.watch(
       currencyDataControllerProvider.select((s) => s.ratesLoading),
     );
@@ -141,8 +139,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     suffixIcon: TextButton(
                       onPressed: () =>
                           _showCurrencyPicker(context, (currency) async {
-                            if (currentCurrency != currency.code &&
-                                isExchangeRatesNotLoaded) {
+                            if (currentCurrency != currency.code) {
                               final success = await currencyDataController
                                   .loadExchangeRates();
                               if (success) {
