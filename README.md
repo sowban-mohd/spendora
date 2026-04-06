@@ -10,11 +10,17 @@ Features
 
 Home Dashboard - Get a quick overview of your financial health:
 Current balance
+
 Total income
+
 Total expenses
+
 Savings progress indicator
+
 Spending visualization chart
+
 Top spending categories
+
 Recent transactions
 
 Transaction Tracking - Manage your transactions efficiently:
